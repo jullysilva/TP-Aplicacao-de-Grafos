@@ -9,20 +9,20 @@ import java.util.*;
 public class Graph {
     private final int maxCities = 3;
     private final double initDistance = 2000;
-    private final Map<String, List<String>> map;
+    private final Map<String, List<Node>> map;
 
     public Graph() {
         this.map = new HashMap<>();
     }
 
-    private void addEdge(String source, String destination) {
+    private void addEdge(String source, String destination, double weight) {
         if (!map.containsKey(source))
             addVertex(source);
 
         if (!map.containsKey(destination))
             addVertex(destination);
 
-        map.get(source).add(destination);
+        map.get(source).add(new Node(destination, weight));
     }
 
     private void addVertex(String source) {
@@ -49,23 +49,23 @@ public class Graph {
         }
 
         for (var city : cities) {
-            var lastDistance = this.initDistance;
-            int count = 0;
-            for (var value : cities) {
-                if (count >= this.maxCities)
-                    break;
+            var compareList = new ArrayList<>(cities);
+            compareList.sort(Comparator.comparing(x -> city.getPoint().distanceBetween(x.getPoint())));
 
-                if (value.equals(city))
+            int count = 0;
+            for(var city2 : compareList) {
+                if(city.equals(city2))
                     continue;
 
-                var distance = city.getPoint().distanceBetween(value.getPoint());
-                if (distance < lastDistance) {
-                    lastDistance = distance;
-                    count++;
-                    var source = String.format("%s (%s)", city.getName(), city.getState());
-                    var destination = String.format("%s (%s)", value.getName(), value.getState());
-                    addEdge(source, destination);
-                }
+                if(count >= this.maxCities)
+                    break;
+
+                var distance = city.getPoint().distanceBetween(city2.getPoint());
+                var source = String.format("%s (%s)", city.getName(), city.getState());
+                var destination = String.format("%s (%s)", city2.getName(), city2.getState());
+
+                addEdge(source, destination, distance);
+                count++;
             }
         }
     }
@@ -74,13 +74,13 @@ public class Graph {
     public String toString() {
         var stringBuilder = new StringBuilder();
 
-        for (String key : map.keySet()) {
+        for (var key : map.keySet()) {
             stringBuilder.append(key);
             stringBuilder.append(": ");
 
-            for (String vertices : map.get(key)) {
-                stringBuilder.append(vertices);
-                stringBuilder.append(" ");
+            for (var node : map.get(key)) {
+                stringBuilder.append(node);
+                stringBuilder.append(", ");
             }
             stringBuilder.append("\n");
         }
