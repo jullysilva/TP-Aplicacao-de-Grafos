@@ -37,32 +37,34 @@ public class Graph {
         var bufferedReader = new BufferedReader(streamReader);
         var cities = new ArrayList<City>();
         String line;
-        while((line = bufferedReader.readLine()) != null) {
+        while ((line = bufferedReader.readLine()) != null) {
             var tokens = line.split(";");
-            if(tokens[0].equals("city"))
+            if (tokens[0].equals("city"))
                 continue;
 
             var latitude = Double.parseDouble(tokens[1].replace(',', '.'));
             var longitude = Double.parseDouble(tokens[2].replace(',', '.'));
 
-            cities.add(new City(tokens[0], latitude, longitude));
+            cities.add(new City(tokens[0], tokens[5], latitude, longitude));
         }
 
-        for(var city : cities) {
+        for (var city : cities) {
             var lastDistance = this.initDistance;
             int count = 0;
             for (var value : cities) {
                 if (count >= this.maxCities)
                     break;
 
-                if(value.getName().equals(city.getName()))
+                if (value.equals(city))
                     continue;
 
                 var distance = city.getPoint().distanceBetween(value.getPoint());
                 if (distance < lastDistance) {
                     lastDistance = distance;
                     count++;
-                    addEdge(city.getName(), value.getName());
+                    var source = String.format("%s (%s)", city.getName(), city.getState());
+                    var destination = String.format("%s (%s)", value.getName(), value.getState());
+                    addEdge(source, destination);
                 }
             }
         }
