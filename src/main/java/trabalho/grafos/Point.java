@@ -21,7 +21,7 @@ public class Point {
         var angle = sinLatitude + cosLatitude * sinLongitude;
         var distance = 2 * Math.atan2(Math.sqrt(angle), Math.sqrt(1 - angle));
         var distanceMeters = this.earthRadius * distance * 1000;
-
+        distanceMeters = Math.pow(distanceMeters, 2);
         return Math.sqrt(distanceMeters);
     }
 
