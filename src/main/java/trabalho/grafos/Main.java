@@ -7,7 +7,9 @@ public class Main {
         try {
             var graph = new Graph();
             graph.load("br.csv");
-            System.out.println(graph);
+            // System.out.println(graph); Comentado até achar uma solução melhor
+            System.out.println(
+                    "===============================================================================================");
         } catch (IOException e) {
             e.printStackTrace();
         }

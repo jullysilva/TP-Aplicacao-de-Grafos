@@ -29,6 +29,45 @@ public class Graph {
         map.put(source, new LinkedList<>());
     }
 
+    private void matrizAdjacencia(ArrayList<City> adjacencyList) {
+        int count = 0;
+        double vetor[] = new double[3];
+
+        for (var city : adjacencyList) {
+            var compareList = new ArrayList<>(adjacencyList);
+            compareList.sort(Comparator.comparing(x -> city.getPoint().distanceBetween(x.getPoint())));
+
+            count = 0;
+            for (var cityord : compareList) {
+                if (city.equals(cityord)) {
+                    continue;
+                }
+
+                if (!(count >= this.maxCities)) {
+                    vetor[count] = city.getPoint().distanceBetween(cityord.getPoint()) / 1000;
+                    count++;
+                }
+            }
+
+            var compareLista = new ArrayList<>(adjacencyList);
+            System.out.print(String.format("%s: [", city.getName()));
+            for (var city2 : compareLista) {
+                if (city.equals(city2)) {
+                    continue;
+                }
+                for (int i = 0; i < 3; i++) {
+                    if (city.getPoint().distanceBetween(city2.getPoint()) / 1000 == vetor[i]) {
+                        System.out.printf(
+                                String.format("%.2fKm ", city.getPoint().distanceBetween(city2.getPoint()) / 1000));
+                    }
+                }
+                System.out.print(" 0 ");
+            }
+            System.out.print("] \n");
+
+        }
+    }
+
     public void load(String path) throws IOException {
         var stream = getClass().getClassLoader().getResourceAsStream(path);
         assert stream != null;
@@ -44,28 +83,36 @@ public class Graph {
 
             var latitude = Double.parseDouble(tokens[1].replace(',', '.'));
             var longitude = Double.parseDouble(tokens[2].replace(',', '.'));
-
             cities.add(new City(tokens[0], tokens[5], latitude, longitude));
         }
+
+        matrizAdjacencia(cities);
 
         for (var city : cities) {
             var compareList = new ArrayList<>(cities);
             compareList.sort(Comparator.comparing(x -> city.getPoint().distanceBetween(x.getPoint())));
 
             int count = 0;
-            for(var city2 : compareList) {
-                if(city.equals(city2))
+            for (var city2 : compareList) {
+                if (city.equals(city2)) {
                     continue;
+                }
 
-                if(count >= this.maxCities)
-                    break;
+                if (!(count >= this.maxCities)) {
+                    var distance = city.getPoint().distanceBetween(city2.getPoint());
+                    var source = String.format("%s", city.getName());
+                    var destination = String.format("%s", city2.getName());
 
-                var distance = city.getPoint().distanceBetween(city2.getPoint());
-                var source = String.format("%s (%s)", city.getName(), city.getState());
-                var destination = String.format("%s (%s)", city2.getName(), city2.getState());
+                    addEdge(source, destination, distance);
+                    count++;
+                } else {
+                    var distance = 0.0;
+                    var source = String.format("%s", city.getName());
+                    var destination = String.format("%s", city2.getName());
 
-                addEdge(source, destination, distance);
-                count++;
+                    addEdge(source, destination, distance);
+
+                }
             }
         }
     }
@@ -76,13 +123,13 @@ public class Graph {
 
         for (var key : map.keySet()) {
             stringBuilder.append(key);
-            stringBuilder.append(": ");
+            stringBuilder.append(" [ ");
 
             for (var node : map.get(key)) {
                 stringBuilder.append(node);
-                stringBuilder.append(", ");
+                stringBuilder.append("  ");
             }
-            stringBuilder.append("\n");
+            stringBuilder.append("]\n");
         }
 
         return stringBuilder.toString();

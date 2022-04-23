@@ -11,6 +11,6 @@ public class Node {
 
     @Override
     public String toString() {
-        return String.format("%s - %.2fKM", this.value, this.weight / 1000);
+        return String.format("%.2fKm", this.weight / 1000);
     }
 }
